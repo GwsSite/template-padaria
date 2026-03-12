@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin – La Farine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF6EF;
+      --tan: #D4B896;
+      --brown: #7C5C3E;
+      --dark-brown: #3E2B1A;
+      --accent: #C8873A;
+      --soft-red: #C0392B;
+      --success: #27AE60;
+      --text: #2C1F12;
+      --muted: #8A7060;
+      --bg: #F5F0E8;
+      --card: #FFFFFF;
+      --border: rgba(212,184,150,0.35);
+    }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 260px;
+      background: var(--dark-brown);
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      overflow: hidden;
+    }
+    .sidebar::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(212,184,150,0.3), transparent);
+    }
+
+    .sidebar-logo {
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom: 1px solid rgba(212,184,150,0.1);
+    }
+    .sidebar-logo a {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--cream);
+      text-decoration: none;
+    }
+    .sidebar-logo a span { color: var(--accent); font-style: italic; }
+    .sidebar-logo p {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(250,246,239,0.35);
+      margin-top: 0.25rem;
+    }
+
+    .sidebar-nav {
+      padding: 1.5rem 0;
+      flex: 1;
+    }
+    .sidebar-section {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(250,246,239,0.3);
+      padding: 0.5rem 1.5rem;
+      margin-top: 1rem;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.75rem 1.5rem;
+      color: rgba(250,246,239,0.6);
+      font-size: 0.88rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      text-decoration: none;
+    }
+    .sidebar-link:hover { color: var(--cream); background: rgba(255,255,255,0.05); }
+    .sidebar-link.active {
+      color: var(--cream);
+      background: rgba(200,135,58,0.15);
+      border-left-color: var(--accent);
+    }
+    .sidebar-link .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(212,184,150,0.1);
+    }
+    .sidebar-footer a {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+      color: rgba(250,246,239,0.4);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .sidebar-footer a:hover { color: var(--accent); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .topbar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--dark-brown);
+    }
+    .topbar-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+    .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: 0.6rem 1.2rem;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: #b5772e; }
+    .btn-danger { background: var(--soft-red); color: #fff; }
+    .btn-danger:hover { background: #a93226; }
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--brown);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+
+    /* ── CONTENT ── */
+    .content { padding: 2.5rem; flex: 1; }
+
+    /* ── STATS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(62,43,26,0.08); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+    }
+    .stat-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--dark-brown);
+    }
+    .stat-icon { position: absolute; right: 1rem; top: 1rem; font-size: 1.5rem; opacity: 0.2; }
+
+    /* ── PANEL GRID ── */
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--dark-brown);
+    }
+    .card-body { padding: 1.5rem; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .required::after { content: ' *'; color: var(--soft-red); }
+    input, select, textarea {
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      font-family: 'Jost', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,135,58,0.1);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    select { cursor: pointer; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 0.88rem; color: var(--text); }
+    .toggle-desc { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+    .toggle {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #ddd;
+      border-radius: 24px;
+      transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px; width: 18px;
+      left: 3px; top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    .form-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .feedback {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .feedback.success { background: rgba(39,174,96,0.1); border-left: 3px solid var(--success); color: var(--success); display: flex; }
+    .feedback.error { background: rgba(192,57,43,0.1); border-left: 3px solid var(--soft-red); color: var(--soft-red); display: flex; }
+
+    /* ── PRODUCT TABLE ── */
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-row input { flex: 1; border-radius: 0; }
+
+    .product-table { width: 100%; border-collapse: collapse; }
+    .product-table th {
+      padding: 0.7rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--bg);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .product-table td {
+      padding: 0.9rem 1rem;
+      font-size: 0.88rem;
+      border-bottom: 1px solid rgba(212,184,150,0.15);
+      vertical-align: middle;
+    }
+    .product-table tr:last-child td { border-bottom: none; }
+    .product-table tr:hover td { background: rgba(250,246,239,0.7); }
+
+    .prod-emoji-cell { font-size: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+    .prod-img-cell { width: 40px; height: 40px; object-fit: cover; display: block; }
+
+    .badge-cat {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(200,135,58,0.12);
+      color: var(--accent);
+      border-radius: 2px;
+    }
+
+    .badge-destaque {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(39,174,96,0.12);
+      color: var(--success);
+      border-radius: 2px;
+    }
+
+    .table-actions { display: flex; gap: 0.4rem; }
+
+    .empty-table {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-table .empty-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .empty-table p { font-size: 0.9rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30,15,5,0.65);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem;
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark-brown);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.2rem;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--soft-red); }
+    .modal-body { font-size: 0.9rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+    .modal-body strong { color: var(--dark-brown); }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      font-size: 0.88rem;
+      z-index: 9998;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      max-width: 320px;
+      border-left: 3px solid var(--success);
+      background: var(--dark-brown);
+      color: var(--cream);
+    }
+    .toast.error { border-left-color: var(--soft-red); }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1100px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .content { padding: 1.5rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html">La <span>Farine</span></a>
+      <p>Painel Administrativo</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Gestão</div>
+      <div class="sidebar-link active"><span class="icon">🏪</span> Produtos</div>
+      <div class="sidebar-section">Loja</div>
+      <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> Ver Site</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html">← Voltar ao site</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Produtos</div>
+        <div class="topbar-meta">Gerencie o cardápio da padaria</div>
+      </div>
+      <div class="topbar-actions">
+        <a href="index.html" target="_blank" class="btn btn-ghost">🌐 Ver Loja</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total de Produtos</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-icon">📦</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Destaques</div>
+          <div class="stat-value" id="statDestaque">—</div>
+          <div class="stat-icon">⭐</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Categorias</div>
+          <div class="stat-value" id="statCats">—</div>
+          <div class="stat-icon">🏷️</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Preço Médio</div>
+          <div class="stat-value" id="statAvg">—</div>
+          <div class="stat-icon">💰</div>
+        </div>
+      </div>
+
+      <!-- PANEL -->
+      <div class="panel-grid">
+
+        <!-- FORM -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="formTitle">➕ Novo Produto</div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label class="required" for="fNome">Nome do Produto</label>
+                <input type="text" id="fNome" placeholder="Ex: Croissant de Manteiga"/>
+              </div>
+              <div class="form-group">
+                <label class="required" for="fPreco">Preço (R$)</label>
+                <input type="number" id="fPreco" placeholder="0,00" step="0.01" min="0"/>
+              </div>
+              <div class="form-group">
+                <label class="required" for="fCategoria">Categoria</label>
+                <select id="fCategoria">
+                  <option value="">Selecione…</option>
+                  <option value="Pães">🍞 Pães</option>
+                  <option value="Bolos">🎂 Bolos</option>
+                  <option value="Doces">🍰 Doces</option>
+                  <option value="Salgados">🥐 Salgados</option>
+                  <option value="Tortas">🥧 Tortas</option>
+                  <option value="Bebidas">☕ Bebidas</option>
+                  <option value="Outros">🍪 Outros</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label for="fDesc">Descrição</label>
+                <textarea id="fDesc" placeholder="Descreva o produto..."></textarea>
+              </div>
+              <div class="form-group full">
+                <label for="fImagem">URL da Imagem (opcional)</label>
+                <input type="url" id="fImagem" placeholder="https://..."/>
+              </div>
+              <div class="form-group full">
+                <div class="toggle-row">
+                  <div>
+                    <div class="toggle-label">Produto em destaque</div>
+                    <div class="toggle-desc">Aparece com badge especial no site</div>
+                  </div>
+                  <label class="toggle">
+                    <input type="checkbox" id="fDestaque"/>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-accent" id="btnSalvar" onclick="salvarProduto()">
+                💾 Salvar Produto
+              </button>
+              <button class="btn btn-ghost" id="btnCancelar" onclick="cancelarEdicao()" style="display:none">
+                Cancelar
+              </button>
+            </div>
+
+            <div class="feedback" id="formFeedback"></div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="card">
+          <div class="search-row">
+            <input type="text" id="searchInput" placeholder="🔍  Buscar produto..." oninput="filtrarTabela()"/>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Produto</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="productsTable">
+                <tr><td colspan="6">
+                  <div class="empty-table">
+                    <div class="empty-icon">⏳</div>
+                    <p>Carregando produtos…</p>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🗑️ Excluir Produto</div>
+        <button class="modal-close" onclick="closeDeleteModal()">×</button>
+      </div>
+      <div class="modal-body">
+        Você tem certeza que deseja excluir <strong id="deleteProductName"></strong>? Esta ação não pode ser desfeita.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmarExclusao()">🗑️ Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Produto salvo!</span>
+  </div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAilKxbKvh_ndcg12TMGvhPzfDGSa16jIM",
+      authDomain: "auth-70823.firebaseapp.com",
+      databaseURL: "https://auth-70823-default-rtdb.firebaseio.com",
+      projectId: "auth-70823",
+      storageBucket: "auth-70823.firebasestorage.app",
+      messagingSenderId: "212842260505",
+      appId: "1:212842260505:web:c48b902a8ee23fe43ce288",
+      measurementId: "G-DXWDRSZTLD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let allProducts = [];
+    let editingId = null;
+    let deleteId = null;
+
+    const EMOJI_MAP = {
+      'pães': '🍞', 'bolos': '🎂', 'doces': '🍰', 'salgados': '🥐',
+      'bebidas': '☕', 'tortas': '🥧', 'outros': '🍪'
+    };
+
+    /* ── REALTIME LISTENER ── */
+    onValue(ref(db, 'produtos'), (snap) => {
+      const data = snap.val();
+      allProducts = data ? Object.entries(data).map(([id, p]) => ({ id, ...p })) : [];
+      updateStats();
+      renderTable(allProducts);
+    });
+
+    /* ── STATS ── */
+    function updateStats() {
+      document.getElementById('statTotal').textContent = allProducts.length;
+      document.getElementById('statDestaque').textContent = allProducts.filter(p => p.destaque).length;
+      const cats = new Set(allProducts.map(p => p.categoria));
+      document.getElementById('statCats').textContent = cats.size;
+      const avg = allProducts.length
+        ? (allProducts.reduce((s, p) => s + parseFloat(p.preco || 0), 0) / allProducts.length)
+        : 0;
+      document.getElementById('statAvg').textContent = 'R$' + avg.toFixed(2);
+    }
+
+    /* ── TABLE ── */
+    function renderTable(products) {
+      const tbody = document.getElementById('productsTable');
+      if (!products.length) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-table"><div class="empty-icon">🥐</div><p>Nenhum produto cadastrado ainda.</p></div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = products.map(p => {
+        const catKey = (p.categoria || 'outros').toLowerCase();
+        const emoji = EMOJI_MAP[catKey] || '🍪';
+        const thumbHtml = p.imagem
+          ? `<img class="prod-img-cell" src="${p.imagem}" alt="" onerror="this.outerHTML='<div class=prod-emoji-cell>${emoji}</div>'">`
+          : `<div class="prod-emoji-cell">${emoji}</div>`;
+        return `
+          <tr>
+            <td>${thumbHtml}</td>
+            <td>
+              <strong>${p.nome}</strong>
+              ${p.descricao ? `<br><small style="color:var(--muted);font-size:0.78rem">${p.descricao.slice(0,40)}${p.descricao.length>40?'…':''}</small>` : ''}
+            </td>
+            <td><span class="badge-cat">${p.categoria || 'Outros'}</span></td>
+            <td><strong>R$ ${parseFloat(p.preco||0).toFixed(2)}</strong></td>
+            <td>${p.destaque ? '<span class="badge-destaque">✦ Destaque</span>' : '<span style="color:var(--muted);font-size:0.8rem">Normal</span>'}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn btn-ghost btn-sm" onclick="window.editarProduto('${p.id}')">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="window.promptDelete('${p.id}','${p.nome.replace(/'/g,"\\'")}')">🗑️</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    /* ── SEARCH ── */
+    window.filtrarTabela = () => {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allProducts.filter(p =>
+        p.nome.toLowerCase().includes(q) ||
+        (p.categoria || '').toLowerCase().includes(q) ||
+        (p.descricao || '').toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    };
+
+    /* ── SAVE ── */
+    window.salvarProduto = async () => {
+      const nome = document.getElementById('fNome').value.trim();
+      const preco = document.getElementById('fPreco').value;
+      const categoria = document.getElementById('fCategoria').value;
+      const descricao = document.getElementById('fDesc').value.trim();
+      const imagem = document.getElementById('fImagem').value.trim();
+      const destaque = document.getElementById('fDestaque').checked;
+
+      if (!nome || !preco || !categoria) {
+        showFeedback('error', '⚠️ Preencha os campos obrigatórios: Nome, Preço e Categoria.');
+        return;
+      }
+
+      const product = {
+        nome, preco: parseFloat(preco), categoria, descricao, imagem, destaque,
+        updatedAt: Date.now()
+      };
+
+      try {
+        if (editingId) {
+          await set(ref(db, `produtos/${editingId}`), { ...product, createdAt: allProducts.find(p=>p.id===editingId)?.createdAt || Date.now() });
+          showToast('✅', 'Produto atualizado com sucesso!');
+        } else {
+          await push(ref(db, 'produtos'), { ...product, createdAt: Date.now() });
+          showToast('✅', 'Produto adicionado com sucesso!');
+        }
+        resetForm();
+        showFeedback('success', '✅ Produto salvo com sucesso!');
+      } catch (e) {
+        showFeedback('error', '❌ Erro ao salvar: ' + e.message);
+      }
+    };
+
+    /* ── EDIT ── */
+    window.editarProduto = (id) => {
+      const p = allProducts.find(x => x.id === id);
+      if (!p) return;
+      editingId = id;
+      document.getElementById('fNome').value = p.nome;
+      document.getElementById('fPreco').value = p.preco;
+      document.getElementById('fCategoria').value = p.categoria || '';
+      document.getElementById('fDesc').value = p.descricao || '';
+      document.getElementById('fImagem').value = p.imagem || '';
+      document.getElementById('fDestaque').checked = !!p.destaque;
+      document.getElementById('formTitle').textContent = '✏️ Editar Produto';
+      document.getElementById('btnSalvar').textContent = '💾 Atualizar';
+      document.getElementById('btnCancelar').style.display = '';
+      document.querySelector('.card-body').scrollIntoView({ behavior: 'smooth' });
+      hideFeedback();
+    };
+
+    /* ── CANCEL EDIT ── */
+    window.cancelarEdicao = resetForm;
+    function resetForm() {
+      editingId = null;
+      document.getElementById('fNome').value = '';
+      document.getElementById('fPreco').value = '';
+      document.getElementById('fCategoria').value = '';
+      document.getElementById('fDesc').value = '';
+      document.getElementById('fImagem').value = '';
+      document.getElementById('fDestaque').checked = false;
+      document.getElementById('formTitle').textContent = '➕ Novo Produto';
+      document.getElementById('btnSalvar').textContent = '💾 Salvar Produto';
+      document.getElementById('btnCancelar').style.display = 'none';
+      hideFeedback();
+    }
+
+    /* ── DELETE ── */
+    window.promptDelete = (id, name) => {
+      deleteId = id;
+      document.getElementById('deleteProductName').textContent = `"${name}"`;
+      document.getElementById('deleteModal').classList.add('open');
+    };
+    window.closeDeleteModal = () => {
+      deleteId = null;
+      document.getElementById('deleteModal').classList.remove('open');
+    };
+    window.confirmarExclusao = async () => {
+      if (!deleteId) return;
+      try {
+        await remove(ref(db, `produtos/${deleteId}`));
+        showToast('🗑️', 'Produto removido.');
+        closeDeleteModal();
+        if (editingId === deleteId) resetForm();
+      } catch(e) {
+        showToast('❌', 'Erro ao excluir: ' + e.message, true);
+        closeDeleteModal();
+      }
+    };
+
+    /* ── FEEDBACK ── */
+    function showFeedback(type, msg) {
+      const el = document.getElementById('formFeedback');
+      el.className = 'feedback ' + type;
+      el.textContent = msg;
+      setTimeout(hideFeedback, 4000);
+    }
+    function hideFeedback() {
+      const el = document.getElementById('formFeedback');
+      el.className = 'feedback';
+    }
+
+    /* ── TOAST ── */
+    function showToast(icon, msg, isError = false) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon;
+      document.getElementById('toastMsg').textContent = msg;
+      toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    /* ── CLOSE MODAL ON OVERLAY CLICK ── */
+    document.getElementById('deleteModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeDeleteModal();
+    });
+  </script>
+</body>
+</html>
